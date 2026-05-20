@@ -57,4 +57,23 @@
       font-weight: 700;
     }
   }
+
+  &_user {
+    margin: 12px;
+    color: #4b5563;
+  }
+
+  &_logout {
+    background: transparent;
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-weight: 600;
+    &:hover {
+      color: #fff;
+      background: #ef4444;
+    }
+  }
 }
