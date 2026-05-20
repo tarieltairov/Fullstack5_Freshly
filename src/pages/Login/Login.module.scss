@@ -1,0 +1,90 @@
+$accent: #16a34a;
+$accent-hover: #15803d;
+$danger: #ef4444;
+$border: #d1d5db;
+$muted: #6b7280;
+
+.wrapper {
+  background: #f9fafb;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.form {
+  background-color: #fff;
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.title {
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  input {
+    padding: 10px 20px;
+    border: 1px solid $border;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+
+    &:focus {
+      border-color: $accent;
+    }
+  }
+}
+
+.error {
+  margin: 0;
+  padding: 10px 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: $danger;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.submit {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: $accent;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: $accent-hover;
+  }
+}
+
+.hint {
+  margin: 0;
+  text-align: center;
+  color: $muted;
+  font-size: 14px;
+  a {
+    color: $accent;
+    font-weight: 600;
+  }
+}

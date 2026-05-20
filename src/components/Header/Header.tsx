@@ -1,11 +1,9 @@
-import {
-  // Link,
-  NavLink,
-} from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import styles from './Header.module.scss';
 
 import { useCart } from '../../context/CartContext';
 import clsx from 'clsx';
+import { useAuth } from '../../context/AuthContext';
 
 // Link - простая ссылка
 // NavLink - ссылка с активным состоянием
@@ -18,6 +16,8 @@ interface HeaderRoute {
 
 export function Header() {
   const { totalCount } = useCart();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const pages: HeaderRoute[] = [
     {
@@ -33,11 +33,12 @@ export function Header() {
       to: '/about',
       label: 'О нас',
     },
-    {
-      to: '/login',
-      label: 'Выйти с аккаунта',
-    },
   ];
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <header className={styles.header}>
@@ -62,6 +63,19 @@ export function Header() {
             )}
           </NavLink>
         ))}
+
+        {user ? (
+          <>
+            <span className={styles.header_user}>Привет, {user.name}</span>
+            <button className={styles.header_logout} onClick={handleLogout}>
+              Выйти
+            </button>
+          </>
+        ) : (
+          <NavLink to='/login' className={styles.header_link}>
+            Войти
+          </NavLink>
+        )}
       </nav>
     </header>
   );

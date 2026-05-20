@@ -11,6 +11,8 @@ import { CheckoutSuccess } from './pages/CheckoutSuccess';
 import { Test } from './components/Test';
 import { Example } from './components/Example';
 import { PrivateRoute } from './components/PrivateRoute';
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
 
 function App() {
   return (
@@ -37,7 +39,8 @@ function App() {
         </Route>
       </Route>
 
-      <Route path='/login' element={<h1>Страница авторизации</h1>} />
+      <Route path='/login' element={<Login />} />
+      <Route path='/register' element={<Register />} />
 
       <Route path='*' element={<NotFound />} />
     </Routes>
