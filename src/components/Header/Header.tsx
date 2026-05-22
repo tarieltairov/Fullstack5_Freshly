@@ -64,6 +64,12 @@ export function Header() {
           </NavLink>
         ))}
 
+        {user?.role === 'admin' && (
+          <NavLink to='/admin' className={styles.header_link}>
+            Админ
+          </NavLink>
+        )}
+
         {user ? (
           <>
             <span className={styles.header_user}>Привет, {user.name}</span>

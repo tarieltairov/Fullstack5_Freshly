@@ -1,18 +1,19 @@
 import { Navigate, useLocation, useParams } from 'react-router-dom';
-import { products } from '../../mock/products';
 import styles from './Product.module.scss';
 import { BackButton } from '../../components/BackButton';
 import { useCart } from '../../context/CartContext';
 import { Counter } from '../../components/Counter';
+import { useProducts } from '../../context/ProductsContext';
 
 export function Product() {
+  const { getProduct } = useProducts();
   const location = useLocation();
 
   const { id } = useParams();
 
   const { addToCart, getItemQuantity } = useCart();
 
-  const currentProduct = products.find((item) => item.id === Number(id));
+  const currentProduct = getProduct(Number(id));
 
   if (!currentProduct) {
     return <Navigate to='/' replace />;

@@ -13,6 +13,7 @@ import { Example } from './components/Example';
 import { PrivateRoute } from './components/PrivateRoute';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { Admin } from './pages/Admin';
 
 function App() {
   return (
@@ -36,6 +37,10 @@ function App() {
         <Route element={<PrivateRoute />}>
           <Route path='checkout' element={<Checkout />} />
           <Route path='checkout/success' element={<CheckoutSuccess />} />
+        </Route>
+
+        <Route element={<PrivateRoute role='admin' />}>
+          <Route path='admin' element={<Admin />} />
         </Route>
       </Route>
 

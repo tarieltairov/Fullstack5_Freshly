@@ -1,15 +1,17 @@
 import { useMemo } from 'react';
 import { Pagination } from '../../components/Pagination';
 import { ProductCard } from '../../components/ProductCard';
-import { CATEGORIES, products } from '../../mock/products';
+import { CATEGORIES } from '../../mock/products';
 import { buildNextParams } from '../../utils/searchParams';
 import styles from './Main.module.scss';
 import { useSearchParams } from 'react-router-dom';
+import { useProducts } from '../../context/ProductsContext';
 
 const PER_PAGE_OPTIONS = [3, 4, 6, 12] as const;
 const DEFAULT_PER_PAGE = 3;
 
 export function Main() {
+  const { products } = useProducts();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const search = searchParams.get('search') ?? '';

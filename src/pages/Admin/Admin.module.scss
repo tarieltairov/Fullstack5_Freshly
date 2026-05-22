@@ -1,0 +1,191 @@
+$accent: #16a34a;
+$accent-hover: #15803d;
+$danger: #ef4444;
+$muted: #6b7280;
+$border: #e5e7eb;
+
+.admin {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.title {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.form {
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: sticky;
+  top: 20px;
+}
+
+.formTitle {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  input,
+  select,
+  textarea {
+    padding: 9px 11px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+
+    &:focus {
+      border-color: $accent;
+    }
+  }
+
+  textarea {
+    resize: vertical;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.submit {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: $accent;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: $accent-hover;
+  }
+}
+
+.cancel {
+  padding: 10px 16px;
+  border: 1px solid $border;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.listTitle {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid $border;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.itemImg {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #f5f5f5;
+}
+
+.itemBody {
+  min-width: 0;
+}
+
+.itemTitle {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.itemMeta {
+  margin: 0;
+  color: $muted;
+  font-size: 13px;
+}
+
+.itemActions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit,
+.delete {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+.edit {
+  border-color: $accent;
+  color: $accent;
+
+  &:hover {
+    background: $accent;
+    color: #fff;
+  }
+}
+
+.delete {
+  border-color: $danger;
+  color: $danger;
+
+  &:hover {
+    background: $danger;
+    color: #fff;
+  }
+}
+
+@media (max-width: 800px) {
+  .admin {
+    grid-template-columns: 1fr;
+  }
+  .form {
+    position: static;
+  }
+  .item {
+    grid-template-columns: 60px 1fr;
+  }
+  .itemActions {
+    grid-column: 1 / -1;
+  }
+}
