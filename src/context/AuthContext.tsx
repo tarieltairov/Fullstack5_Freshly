@@ -96,12 +96,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { ok: false, error: 'Пользователь с таким email уже существует' };
     }
 
+    const isFirstUser = users.length === 0;
+
     const newUser: StoredUser = {
       id: Date.now(),
       email: val.email,
       name: val.name,
       password: val.password,
-      role: 'user',
+      role: isFirstUser ? 'admin' : 'user',
     };
 
     writeUsers([...users, newUser]);

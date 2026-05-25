@@ -1,34 +1,134 @@
+import { useState } from 'react';
 import { useProducts } from '../../context/ProductsContext';
 import { CATEGORIES } from '../../mock/products';
 import styles from './Admin.module.scss';
+import type { Category, Product } from '../../types/product';
+import { Link } from 'react-router-dom';
+
+interface FormState {
+  title: string;
+  price: string;
+  imageUrl: string;
+  description: string;
+  category: Category;
+}
+
+const EMPTY_FORM: FormState = {
+  title: '',
+  price: '',
+  imageUrl: '',
+  description: '',
+  category: 'Молочные',
+};
 
 export function Admin() {
-  const { products } = useProducts();
+  const { products, addProduct, deleteProduct, updateProduct } = useProducts();
+
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+
+  const [editingId, setEditingId] = useState<number | null>(null);
+
+  const resetForm = () => {
+    setForm(EMPTY_FORM);
+    setEditingId(null);
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
+  ) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const data: Omit<Product, 'id'> = {
+      title: form.title.trim(),
+      price: Number(form.price),
+      imageUrl: form.imageUrl.trim(),
+      description: form.description.trim(),
+      category: form.category,
+    };
+
+    if (editingId !== null) {
+      updateProduct(editingId, data);
+    } else {
+      addProduct(data);
+    }
+
+    resetForm();
+  };
+
+  const handleDelete = (id: number) => {
+    if (!confirm('Удалить товар?')) return;
+    deleteProduct(id);
+
+    if (editingId !== null) {
+      resetForm();
+    }
+  };
+
+  const handleEdit = (product: Product) => {
+    setEditingId(product.id);
+
+    setForm(() => ({ ...product, price: String(product.price) }));
+  };
+
   return (
     <div className={styles.admin}>
       <h1 className={styles.title}>Админ-панель</h1>
 
-      <form className={styles.form}>
-        <h2 className={styles.formTitle}>Новый товар</h2>
+      <form className={styles.form} onSubmit={handleSubmit}>
+        <h2 className={styles.formTitle}>
+          {editingId ? 'Редактирование' : 'Новый товар'}
+        </h2>
 
         <div className={styles.field}>
           <label htmlFor='title'>Название</label>
-          <input type='text' id='title' name='title' required />
+          <input
+            type='text'
+            id='title'
+            name='title'
+            required
+            value={form.title}
+            onChange={handleChange}
+          />
         </div>
 
         <div className={styles.field}>
           <label htmlFor='price'>Цена</label>
-          <input type='number' id='price' name='price' required />
+          <input
+            type='number'
+            id='price'
+            name='price'
+            required
+            value={form.price}
+            onChange={handleChange}
+          />
         </div>
 
         <div className={styles.field}>
           <label htmlFor='imageUrl'>URL картинки</label>
-          <input type='url' id='imageUrl' name='imageUrl' required />
+          <input
+            type='url'
+            id='imageUrl'
+            name='imageUrl'
+            required
+            value={form.imageUrl}
+            onChange={handleChange}
+          />
         </div>
 
         <div className={styles.field}>
           <label htmlFor='category'>Категория</label>
-          <select id='category' name='category'>
+          <select
+            id='category'
+            name='category'
+            value={form.category}
+            onChange={handleChange}
+          >
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
                 {c}
@@ -39,13 +139,26 @@ export function Admin() {
 
         <div className={styles.field}>
           <label htmlFor='description'>Описание</label>
-          <textarea rows={3} id='description' name='description' required />
+          <textarea
+            rows={3}
+            id='description'
+            name='description'
+            required
+            value={form.description}
+            onChange={handleChange}
+          />
         </div>
 
         <div className={styles.actions}>
           <button type='submit' className={styles.submit}>
-            Создать
+            {editingId ? 'Сохранить' : 'Создать'}
           </button>
+
+          {editingId !== null && (
+            <button type='button' className={styles.cancel} onClick={resetForm}>
+              Отмена
+            </button>
+          )}
         </div>
       </form>
 
@@ -64,15 +177,25 @@ export function Admin() {
             />
 
             <div className={styles.itemBody}>
-              <h3 className={styles.itemTitle}>{p.title}</h3>
+              <Link className={styles.itemTitle} to={`/product/${p.id}`}>
+                {p.title}
+              </Link>
               <p className={styles.itemMeta}>
                 {p.category} . {p.price} сом
               </p>
             </div>
 
             <div className={styles.itemActions}>
-              <button className={styles.edit}>Редактировать</button>
-              <button className={styles.delete}>Удалить</button>
+              <button className={styles.edit} onClick={() => handleEdit(p)}>
+                Редактировать
+              </button>
+
+              <button
+                className={styles.delete}
+                onClick={() => handleDelete(p.id)}
+              >
+                Удалить
+              </button>
             </div>
           </div>
         ))}

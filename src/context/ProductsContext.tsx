@@ -40,7 +40,7 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
 
   const addProduct = (data: Omit<Product, 'id'>) => {
     const newProduct: Product = { ...data, id: Date.now() };
-    setProducts((prev) => [...prev, newProduct]);
+    setProducts((prev) => [newProduct, ...prev]);
   };
 
   const updateProduct = (id: number, data: Omit<Product, 'id'>) => {
