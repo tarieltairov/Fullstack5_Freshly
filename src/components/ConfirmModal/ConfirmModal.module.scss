@@ -1,0 +1,96 @@
+$accent: #16a34a;
+$accent-hover: #15803d;
+$danger: #ef4444;
+$danger-hover: #dc2626;
+$border: #e5e7eb;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.2s ease-out;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+.message {
+  margin: 0 0 20px;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.cancel,
+.confirm {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  font-size: 14px;
+}
+
+.cancel {
+  border-color: $border;
+  background: #fff;
+  &:hover {
+    background: #f3f4f6;
+  }
+}
+
+.confirm {
+  background: $accent;
+  color: #fff;
+  &:hover {
+    background: $accent-hover;
+  }
+}
+
+.confirmDanger {
+  background: $danger;
+  &:hover {
+    background: $danger-hover;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

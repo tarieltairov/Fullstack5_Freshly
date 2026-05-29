@@ -4,6 +4,8 @@ import { CATEGORIES } from '../../mock/products';
 import styles from './Admin.module.scss';
 import type { Category, Product } from '../../types/product';
 import { Link } from 'react-router-dom';
+import { ConfirmModal } from '../../components/ConfirmModal';
+import { EmptyState } from '../../components/EmptyState';
 
 interface FormState {
   title: string;
@@ -27,6 +29,8 @@ export function Admin() {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
 
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const resetForm = () => {
     setForm(EMPTY_FORM);
@@ -61,145 +65,185 @@ export function Admin() {
     resetForm();
   };
 
-  const handleDelete = (id: number) => {
-    if (!confirm('Удалить товар?')) return;
-    deleteProduct(id);
+  const openDeleteModal = (id: number) => {
+    setOpenDelete(true);
+    setDeletingId(id);
+  };
 
-    if (editingId !== null) {
-      resetForm();
-    }
+  const closeDeleteModal = () => {
+    setOpenDelete(false);
+  };
+
+  const handleDelete = () => {
+    if (!deletingId) return;
+
+    deleteProduct(deletingId);
+
+    closeDeleteModal();
+
+    if (editingId === deletingId) resetForm();
   };
 
   const handleEdit = (product: Product) => {
     setEditingId(product.id);
 
-    setForm(() => ({ ...product, price: String(product.price) }));
+    setForm({
+      title: product.title,
+      price: String(product.price),
+      imageUrl: product.imageUrl,
+      description: product.description,
+      category: product.category,
+    });
   };
 
   return (
-    <div className={styles.admin}>
-      <h1 className={styles.title}>Админ-панель</h1>
+    <>
+      <div className={styles.admin}>
+        <h1 className={styles.title}>Админ-панель</h1>
 
-      <form className={styles.form} onSubmit={handleSubmit}>
-        <h2 className={styles.formTitle}>
-          {editingId ? 'Редактирование' : 'Новый товар'}
-        </h2>
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <h2 className={styles.formTitle}>
+            {editingId !== null ? 'Редактирование' : 'Новый товар'}
+          </h2>
 
-        <div className={styles.field}>
-          <label htmlFor='title'>Название</label>
-          <input
-            type='text'
-            id='title'
-            name='title'
-            required
-            value={form.title}
-            onChange={handleChange}
-          />
-        </div>
+          <div className={styles.field}>
+            <label htmlFor='title'>Название</label>
+            <input
+              type='text'
+              id='title'
+              name='title'
+              required
+              value={form.title}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div className={styles.field}>
-          <label htmlFor='price'>Цена</label>
-          <input
-            type='number'
-            id='price'
-            name='price'
-            required
-            value={form.price}
-            onChange={handleChange}
-          />
-        </div>
+          <div className={styles.field}>
+            <label htmlFor='price'>Цена</label>
+            <input
+              type='number'
+              id='price'
+              name='price'
+              required
+              value={form.price}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div className={styles.field}>
-          <label htmlFor='imageUrl'>URL картинки</label>
-          <input
-            type='url'
-            id='imageUrl'
-            name='imageUrl'
-            required
-            value={form.imageUrl}
-            onChange={handleChange}
-          />
-        </div>
+          <div className={styles.field}>
+            <label htmlFor='imageUrl'>URL картинки</label>
+            <input
+              type='url'
+              id='imageUrl'
+              name='imageUrl'
+              required
+              value={form.imageUrl}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div className={styles.field}>
-          <label htmlFor='category'>Категория</label>
-          <select
-            id='category'
-            name='category'
-            value={form.category}
-            onChange={handleChange}
-          >
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </div>
+          <div className={styles.field}>
+            <label htmlFor='category'>Категория</label>
+            <select
+              id='category'
+              name='category'
+              value={form.category}
+              onChange={handleChange}
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div className={styles.field}>
-          <label htmlFor='description'>Описание</label>
-          <textarea
-            rows={3}
-            id='description'
-            name='description'
-            required
-            value={form.description}
-            onChange={handleChange}
-          />
-        </div>
+          <div className={styles.field}>
+            <label htmlFor='description'>Описание</label>
+            <textarea
+              rows={3}
+              id='description'
+              name='description'
+              required
+              value={form.description}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div className={styles.actions}>
-          <button type='submit' className={styles.submit}>
-            {editingId ? 'Сохранить' : 'Создать'}
-          </button>
-
-          {editingId !== null && (
-            <button type='button' className={styles.cancel} onClick={resetForm}>
-              Отмена
+          <div className={styles.actions}>
+            <button type='submit' className={styles.submit}>
+              {editingId ? 'Сохранить' : 'Создать'}
             </button>
+
+            {editingId !== null && (
+              <button
+                type='button'
+                className={styles.cancel}
+                onClick={resetForm}
+              >
+                Отмена
+              </button>
+            )}
+          </div>
+        </form>
+
+        <div className={styles.list}>
+          <h2>Товары ({products.length})</h2>
+
+          {!products.length ? (
+            <EmptyState
+              icon='📦'
+              title='Товаров пока нет'
+              text='Создайте первый товар через форму слева'
+            />
+          ) : (
+            products.map((p) => (
+              <div key={p.id} className={styles.item}>
+                <img
+                  className={styles.itemImg}
+                  src={p.imageUrl}
+                  alt={p.title}
+                  onError={(e) => {
+                    e.currentTarget.src = `https://placehold.co/120x120/16a34a/ffffff?text=${p.title}`;
+                  }}
+                />
+
+                <div className={styles.itemBody}>
+                  <Link className={styles.itemTitle} to={`/product/${p.id}`}>
+                    {p.title}
+                  </Link>
+                  <p className={styles.itemMeta}>
+                    {p.category} . {p.price} сом
+                  </p>
+                </div>
+
+                <div className={styles.itemActions}>
+                  <button className={styles.edit} onClick={() => handleEdit(p)}>
+                    Редактировать
+                  </button>
+
+                  <button
+                    className={styles.delete}
+                    onClick={() => openDeleteModal(p.id)}
+                  >
+                    Удалить
+                  </button>
+                </div>
+              </div>
+            ))
           )}
         </div>
-      </form>
-
-      <div className={styles.list}>
-        <h2>Товары ({products.length})</h2>
-
-        {products.map((p) => (
-          <div key={p.id} className={styles.item}>
-            <img
-              className={styles.itemImg}
-              src={p.imageUrl}
-              alt={p.title}
-              onError={(e) => {
-                e.currentTarget.src = `https://placehold.co/120x120/16a34a/ffffff?text=${p.title}`;
-              }}
-            />
-
-            <div className={styles.itemBody}>
-              <Link className={styles.itemTitle} to={`/product/${p.id}`}>
-                {p.title}
-              </Link>
-              <p className={styles.itemMeta}>
-                {p.category} . {p.price} сом
-              </p>
-            </div>
-
-            <div className={styles.itemActions}>
-              <button className={styles.edit} onClick={() => handleEdit(p)}>
-                Редактировать
-              </button>
-
-              <button
-                className={styles.delete}
-                onClick={() => handleDelete(p.id)}
-              >
-                Удалить
-              </button>
-            </div>
-          </div>
-        ))}
       </div>
-    </div>
+
+      <ConfirmModal
+        open={openDelete}
+        onCancel={closeDeleteModal}
+        onConfirm={handleDelete}
+        title='Удалить товар?'
+        message='Вы уверены что хотите удалить данный товар. Удаление будет безвозвратным.'
+        confirmText='Удалить'
+        variant='danger'
+      />
+    </>
   );
 }

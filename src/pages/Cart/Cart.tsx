@@ -1,7 +1,8 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Counter } from '../../components/Counter';
 import { useCart } from '../../context/CartContext';
 import styles from './Cart.module.scss';
+import { EmptyState } from '../../components/EmptyState';
 
 export function Cart() {
   const { cart, removeItemFromCart, totalPrice } = useCart();
@@ -10,7 +11,19 @@ export function Cart() {
   if (cart.length === 0) {
     return (
       <div className={styles.cart}>
-        <h2>Корзина пуста</h2>
+        <h2>Корзина</h2>
+
+        <EmptyState
+          className={styles.cartEmpty}
+          icon='🛒'
+          title='Корзина пуста'
+          text='Добавьте товары из каталога, чтобы оформить заказ.'
+          action={
+            <Link to='/' className={styles.cart__catalogBtn}>
+              Перейти в каталог
+            </Link>
+          }
+        />
       </div>
     );
   }

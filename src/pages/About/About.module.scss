@@ -1,0 +1,141 @@
+$accent: #16a34a;
+$accent-hover: #15803d;
+$muted: #6b7280;
+$border: #e5e7eb;
+
+.about {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+}
+
+.hero {
+  padding: 60px 24px;
+  text-align: center;
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+  border-radius: 16px;
+}
+
+.heroTitle {
+  margin: 0 0 16px;
+  font-size: 36px;
+  color: #111827;
+}
+.heroLead {
+  margin: 0 auto;
+  max-width: 640px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: $muted;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.statItem {
+  padding: 24px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 12px;
+}
+
+.statValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: $accent;
+  margin-bottom: 4px;
+}
+.statLabel {
+  font-size: 14px;
+  color: $muted;
+}
+
+.sectionTitle {
+  margin: 0 0 24px;
+  font-size: 26px;
+  text-align: center;
+  color: #111827;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.feature {
+  padding: 24px;
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 12px;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.featureIcon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+.featureTitle {
+  margin: 0 0 8px;
+  font-size: 17px;
+  color: #111827;
+}
+.featureText {
+  margin: 0;
+  color: $muted;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.cta {
+  text-align: center;
+  padding: 48px 24px;
+  background: #111827;
+  border-radius: 16px;
+  color: #fff;
+}
+
+.ctaTitle {
+  margin: 0 0 8px;
+  font-size: 26px;
+}
+.ctaText {
+  margin: 0 0 24px;
+  color: #9ca3af;
+}
+
+.ctaBtn {
+  display: inline-block;
+  padding: 14px 32px;
+  background: $accent;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background 0.15s ease;
+  &:hover {
+    background: $accent-hover;
+  }
+}
+
+@media (max-width: 700px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .heroTitle {
+    font-size: 28px;
+  }
+}

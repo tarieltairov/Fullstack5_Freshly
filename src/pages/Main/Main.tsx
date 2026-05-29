@@ -6,6 +6,7 @@ import { buildNextParams } from '../../utils/searchParams';
 import styles from './Main.module.scss';
 import { useSearchParams } from 'react-router-dom';
 import { useProducts } from '../../context/ProductsContext';
+import { EmptyState } from '../../components/EmptyState';
 
 const PER_PAGE_OPTIONS = [3, 4, 6, 12] as const;
 const DEFAULT_PER_PAGE = 3;
@@ -113,11 +114,23 @@ export function Main() {
         </select>
       </div>
 
-      <div className={styles.productsList}>
-        {paginated.map((product, index) => (
-          <ProductCard {...product} key={index} />
-        ))}
-      </div>
+      {!paginated.length ? (
+        <EmptyState
+          title={!products.length ? 'Каталог пока пуст' : 'Ничего не найдено'}
+          text={
+            !products.length
+              ? 'Скоро здесь появятся товары. Загляните позже.'
+              : 'Попробуйте изменить параметры поиска или фильтра'
+          }
+          icon='🛒'
+        />
+      ) : (
+        <div className={styles.productsList}>
+          {paginated.map((product, index) => (
+            <ProductCard {...product} key={index} />
+          ))}
+        </div>
+      )}
 
       <Pagination
         page={page}

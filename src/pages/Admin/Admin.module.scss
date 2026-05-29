@@ -28,7 +28,7 @@ $border: #e5e7eb;
   flex-direction: column;
   gap: 14px;
   position: sticky;
-  top: 20px;
+  top: calc(var(--header-height) + 20px);
 }
 
 .formTitle {

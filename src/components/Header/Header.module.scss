@@ -1,5 +1,5 @@
 .header {
-  height: 60px;
+  height: var(--header-height);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -11,11 +11,55 @@
   top: 0;
   z-index: 10;
 
+  &_cartIcon {
+    position: relative; // якорь для бейджа
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 4px;
+    color: #555;
+    text-decoration: none;
+    transition: color 0.15s ease;
+    &:hover {
+      color: $primary;
+    }
+  }
+
+  .active_cartIcon {
+    color: $primary;
+  }
+
+  &_cart_badge {
+    position: absolute;
+    top: -5px;
+    right: -7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    padding: 0 4px;
+    color: $white;
+    background: $primary;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
   &_logo {
     font-size: 20px;
     font-weight: 700;
     color: $primary;
     letter-spacing: 0.5px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity 0.15s ease;
+    &:hover {
+      opacity: 0.8;
+    }
   }
 
   &_nav {
@@ -37,25 +81,6 @@
   .active_link {
     color: $primary;
     text-decoration: underline;
-  }
-
-  &_cart {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    &_badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 20px;
-      height: 20px;
-      border-radius: 999px;
-      padding: 0 6px;
-      color: $white;
-      background: $primary;
-      font-size: 12px;
-      font-weight: 700;
-    }
   }
 
   &_user {

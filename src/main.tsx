@@ -5,10 +5,12 @@ import { BrowserRouter } from 'react-router-dom';
 import { CartProvider } from './context/CartContext.tsx';
 import { AuthProvider } from './context/AuthContext.tsx';
 import { ProductsProvider } from './context/ProductsContext.tsx';
+import { ScrollToTop } from './components/ScrollToTop';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
+      <ScrollToTop />
       <AuthProvider>
         <ProductsProvider>
           <CartProvider>
