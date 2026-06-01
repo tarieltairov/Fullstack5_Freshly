@@ -18,20 +18,25 @@ export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setError('');
+    setIsLoading(true);
 
-    const result = login({ email, password });
+    const result = await login({ email, password });
 
     if (result.ok) {
       navigate(from, { replace: true });
     } else {
       setError(result.error);
     }
+    setIsLoading(false);
   };
+
+  console.log(isLoading);
 
   return (
     <div className={styles.wrapper}>
@@ -62,8 +67,8 @@ export function Login() {
 
         {error && <p className={styles.error}>{error}</p>}
 
-        <button className={styles.submit} type='submit'>
-          Войти
+        <button className={styles.submit} type='submit' disabled={isLoading}>
+          {isLoading ? 'Входим...' : 'Войти'}
         </button>
 
         <p className={styles.hint}>

@@ -6,6 +6,7 @@ import { useState } from 'react';
 export function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [form, setForm] = useState({
     name: '',
@@ -22,10 +23,11 @@ export function Register() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setError('');
+    setIsLoading(true);
 
     if (form.password.length < 6) {
       setError('Пароль должен содержать минимум 6 символов');
@@ -37,7 +39,7 @@ export function Register() {
       return;
     }
 
-    const result = register({
+    const result = await register({
       name: form.name,
       email: form.email,
       password: form.password,
@@ -48,6 +50,8 @@ export function Register() {
     } else {
       setError(result.error);
     }
+
+    setIsLoading(false);
   };
 
   return (
@@ -105,8 +109,8 @@ export function Register() {
 
         {error && <p className={styles.error}>{error}</p>}
 
-        <button className={styles.submit} type='submit'>
-          Зарегистрироваться
+        <button className={styles.submit} type='submit' disabled={isLoading}>
+          {isLoading ? 'Регистрируем...' : 'Зарегистрироваться'}
         </button>
 
         <p className={styles.hint}>

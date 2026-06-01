@@ -1,43 +1,30 @@
 /* eslint-disable react-refresh/only-export-components */
 
 import { createContext, useContext, useState, type ReactNode } from 'react';
-import type { StoredUser, User } from '../types/user';
+import type { User } from '../types/user';
+import {
+  clearAccessToken,
+  getApiErrorMessage,
+  getCurrentUser,
+  loginRequest,
+  registerRequest,
+  setAccessToken,
+  type LoginInput,
+  type RegisterInput,
+} from '../services/api';
 
 type AuthResult = { ok: true } | { ok: false; error: string };
-
-interface LoginInput {
-  email: string;
-  password: string;
-}
-
-interface RegisterInput {
-  email: string;
-  password: string;
-  name: string;
-}
 
 interface AuthContextType {
   user: User | null;
   isAuth: boolean;
-  login: (val: LoginInput) => AuthResult;
-  register: (val: RegisterInput) => AuthResult;
+  login: (val: LoginInput) => Promise<AuthResult>;
+  register: (val: RegisterInput) => Promise<AuthResult>;
   logout: () => void;
 }
 
-const USERS_KEY = 'users';
 const CURRENT_USER_KEY = 'currentUser';
 
-// -------------------------------------------
-// helpers
-
-function readUsers(): StoredUser[] {
-  const raw = localStorage.getItem(USERS_KEY);
-  return raw ? JSON.parse(raw) : [];
-}
-
-function writeUsers(users: StoredUser[]) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
 // -------------------------------------------
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -63,60 +50,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem(CURRENT_USER_KEY);
+    clearAccessToken();
   };
 
   //функция входа
-  const login = (val: LoginInput): AuthResult => {
-    const users = readUsers();
+  const login = async (data: LoginInput): Promise<AuthResult> => {
+    try {
+      const { access_token } = await loginRequest(data);
+      setAccessToken(access_token);
 
-    const found = users.find(
-      (u) => u.email === val.email && u.password === val.password,
-    );
+      const user = await getCurrentUser();
+      setUser(user);
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
 
-    if (!found) {
-      return { ok: false, error: 'Неверный email или пароль' };
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: getApiErrorMessage(err) };
     }
-
-    const { password, ...safeUser } = found;
-    console.log(password);
-
-    setUser(safeUser);
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(safeUser));
-
-    return { ok: true };
   };
 
   // функция регистрации
-  const register = (val: RegisterInput): AuthResult => {
-    const users = readUsers();
+  const register = async (data: RegisterInput): Promise<AuthResult> => {
+    try {
+      const { access_token } = await registerRequest(data);
+      setAccessToken(access_token);
 
-    if (
-      users.some((u) => u.email === val.email && u.password === val.password)
-    ) {
-      return { ok: false, error: 'Пользователь с таким email уже существует' };
+      const user = await getCurrentUser();
+      setUser(user);
+
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: getApiErrorMessage(err) };
     }
-
-    const isFirstUser = users.length === 0;
-
-    const newUser: StoredUser = {
-      id: Date.now(),
-      email: val.email,
-      name: val.name,
-      password: val.password,
-      role: isFirstUser ? 'admin' : 'user',
-    };
-
-    writeUsers([...users, newUser]);
-
-    // Авто-логин после регистрации
-    const { password, ...safeUser } = newUser;
-
-    console.log(password);
-
-    setUser(safeUser);
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(safeUser));
-
-    return { ok: true };
   };
 
   return (

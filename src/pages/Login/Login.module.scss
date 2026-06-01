@@ -76,6 +76,11 @@ $muted: #6b7280;
   &:hover {
     background: $accent-hover;
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 .hint {

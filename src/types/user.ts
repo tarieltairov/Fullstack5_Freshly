@@ -4,7 +4,3 @@ export interface User {
   name: string;
   role: 'user' | 'admin';
 }
-
-export interface StoredUser extends User {
-  password: string;
-}
