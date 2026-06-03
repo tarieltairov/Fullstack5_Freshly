@@ -13,3 +13,12 @@ export {
   type LoginInput,
   type RegisterInput,
 } from './auth';
+export {
+  createProduct,
+  deleteProduct,
+  fetchProductById,
+  fetchProducts,
+  updateProduct,
+  type ListProductsParams,
+} from './products';
+export { createOrderRequest } from './orders';

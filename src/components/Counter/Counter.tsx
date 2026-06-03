@@ -2,7 +2,7 @@ import { useCart } from '../../context/CartContext';
 import styles from './Counter.module.scss';
 
 interface CounterProps {
-  productId: number;
+  productId: string;
 }
 
 export function Counter({ productId }: CounterProps) {

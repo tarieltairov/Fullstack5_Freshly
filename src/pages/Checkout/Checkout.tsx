@@ -3,6 +3,8 @@ import { useCart } from '../../context/CartContext';
 import styles from './Checkout.module.scss';
 import type { OrderErrors, OrderForm } from '../../types/order';
 import { useNavigate } from 'react-router-dom';
+import { createOrderRequest } from '../../services/orders';
+import { getApiErrorMessage } from '../../services/apiError';
 
 export function Checkout() {
   const { cart, totalPrice, clearCart } = useCart();
@@ -46,7 +48,7 @@ export function Checkout() {
     return newErrors;
   };
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const newErrors = validate();
@@ -58,36 +60,33 @@ export function Checkout() {
       setErrors({});
       setIsSubmitting(true);
 
-      const order = {
-        id: Date.now(),
-        createdAt: new Date().toISOString(),
-        items: cart,
-        total: totalPrice,
-        customer: form,
-      };
+      try {
+        const order = await createOrderRequest({
+          name: form.name,
+          address: form.address,
+          phone: form.phone,
+          comment: form.comment,
+          productIds: cart.map((i) => i.id),
+          quantities: cart.map((i) => i.quantity),
+        });
 
-      const saved = localStorage.getItem('orders');
-
-      const orders = saved ? JSON.parse(saved) : [];
-      orders.push(order);
-
-      localStorage.setItem('orders', JSON.stringify(orders));
-
-      clearCart();
-
-      navigate('/checkout/success', {
-        state: { orderId: order.id, total: order.total },
-        replace: true,
-      });
+        clearCart();
+        navigate('/checkout/success', {
+          state: { orderId: order._id, total: order.total },
+          replace: true,
+        });
+      } catch (err) {
+        setErrors({ submit: getApiErrorMessage(err) });
+        setIsSubmitting(false);
+      }
     }
   };
 
   useEffect(() => {
-    if (cart.length === 0) {
+    if (cart.length === 0 && !isSubmitting) {
       navigate('/cart');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [cart.length, isSubmitting, navigate]);
 
   return (
     <div className={styles.checkout}>
@@ -176,6 +175,10 @@ export function Checkout() {
           >
             {isSubmitting ? 'Оформляем ...' : 'Подтвердить заказ'}
           </button>
+
+          {errors.submit && (
+            <span className={styles.checkout__error}>{errors.submit}</span>
+          )}
         </form>
 
         <aside className={styles.checkout__summary}>

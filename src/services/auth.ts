@@ -1,4 +1,5 @@
 import { api } from './httpClient';
+import { normalizeUser, type ApiUser } from '../types/user';
 
 export interface LoginInput {
   email: string;
@@ -24,6 +25,6 @@ export async function registerRequest(data: RegisterInput) {
 }
 
 export async function getCurrentUser() {
-  const response = await api.get('/users/me');
-  return response.data;
+  const response = await api.get<ApiUser>('/users/me');
+  return normalizeUser(response.data);
 }

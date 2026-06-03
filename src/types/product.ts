@@ -3,7 +3,8 @@ export type Category =
   | 'Мясо'
   | 'Овощи и фрукты'
   | 'Напитки'
-  | 'Бакалея';
+  | 'Бакалея'
+  | 'Ноутбуки';
 
 export interface Product {
   title: string;
@@ -21,7 +22,12 @@ export interface ApiProduct {
   imageUrl: string;
   category: Category;
   description?: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
+
+export type ProductPayload = Omit<Product, 'id'>;
 
 export function normalizeProduct(product: ApiProduct): Product {
   return {

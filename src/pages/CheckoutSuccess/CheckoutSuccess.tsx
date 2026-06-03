@@ -2,7 +2,7 @@ import { Link, Navigate, useLocation } from 'react-router-dom';
 import styles from './CheckoutSuccess.module.scss';
 
 interface SuccessState {
-  orderId: number;
+  orderId: string;
   total: number;
 }
 

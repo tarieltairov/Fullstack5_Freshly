@@ -27,7 +27,6 @@ export function Register() {
     e.preventDefault();
 
     setError('');
-    setIsLoading(true);
 
     if (form.password.length < 6) {
       setError('Пароль должен содержать минимум 6 символов');
@@ -38,6 +37,8 @@ export function Register() {
       setError('Пароли не совпадают');
       return;
     }
+
+    setIsLoading(true);
 
     const result = await register({
       name: form.name,

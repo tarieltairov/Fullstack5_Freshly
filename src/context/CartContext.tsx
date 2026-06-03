@@ -21,12 +21,12 @@ interface CartContextType {
   totalPrice: number;
   totalCount: number;
   clearCart: () => void;
-  getItemQuantity: (id: number) => number;
+  getItemQuantity: (id: string) => number;
 
   addToCart: (product: Product) => void;
-  removeItemFromCart: (id: number) => void;
-  increaseItem: (id: number) => void;
-  decreaseItem: (id: number) => void;
+  removeItemFromCart: (id: string) => void;
+  increaseItem: (id: string) => void;
+  decreaseItem: (id: string) => void;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -34,7 +34,18 @@ const CartContext = createContext<CartContextType | null>(null);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem('cart');
-    return saved ? JSON.parse(saved) : [];
+
+    if (!saved) return [];
+
+    try {
+      const parsed: unknown = JSON.parse(saved);
+
+      if (!Array.isArray(parsed)) return [];
+
+      return parsed.filter(isCartItem);
+    } catch {
+      return [];
+    }
   });
 
   useEffect(() => {
@@ -53,7 +64,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = () => setCart([]);
 
-  const getItemQuantity = (id: number) => {
+  const getItemQuantity = (id: string) => {
     return cart.find((item) => item.id === id)?.quantity ?? 0;
   };
 
@@ -62,8 +73,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const existing = prev.find((item) => {
         return item.id === product.id;
       });
-
-      console.log('existing', existing);
 
       if (existing) {
         return prev.map((item) => {
@@ -80,11 +89,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const removeItemFromCart = (id: number) => {
+  const removeItemFromCart = (id: string) => {
     setCart((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const increaseItem = (id: number) => {
+  const increaseItem = (id: string) => {
     setCart((prev) =>
       prev.map((item) =>
         item.id === id
@@ -97,7 +106,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
-  const decreaseItem = (id: number) => {
+  const decreaseItem = (id: string) => {
     setCart((prev) => {
       return prev
         .map((item) => {
@@ -141,4 +150,22 @@ export function useCart() {
   }
 
   return ctx;
+}
+
+function isCartItem(value: unknown): value is CartItem {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const item = value as Partial<CartItem>;
+
+  return (
+    typeof item.id === 'string' &&
+    typeof item.title === 'string' &&
+    typeof item.price === 'number' &&
+    typeof item.imageUrl === 'string' &&
+    typeof item.description === 'string' &&
+    typeof item.category === 'string' &&
+    typeof item.quantity === 'number'
+  );
 }

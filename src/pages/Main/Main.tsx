@@ -1,25 +1,28 @@
-import { useMemo } from 'react';
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { EmptyState } from '../../components/EmptyState';
 import { Pagination } from '../../components/Pagination';
 import { ProductCard } from '../../components/ProductCard';
-import { CATEGORIES } from '../../mock/products';
+import { CATEGORIES } from '../../constants/categories';
+import { useProducts } from '../../context/ProductsContext';
+import type { Category } from '../../types/product';
 import { buildNextParams } from '../../utils/searchParams';
 import styles from './Main.module.scss';
-import { useSearchParams } from 'react-router-dom';
-import { useProducts } from '../../context/ProductsContext';
-import { EmptyState } from '../../components/EmptyState';
 
 const PER_PAGE_OPTIONS = [3, 4, 6, 12] as const;
 const DEFAULT_PER_PAGE = 3;
 
 export function Main() {
-  const { products } = useProducts();
+  const { error, isLoading, loadProducts, products, totalPages } =
+    useProducts();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const search = searchParams.get('search') ?? '';
   const category = searchParams.get('category') ?? '';
   const sort = searchParams.get('sort') ?? '';
-  const page = Number(searchParams.get('page') ?? '1');
+  const pageRaw = Number(searchParams.get('page') ?? '1');
   const perPageRaw = Number(searchParams.get('perPage') ?? DEFAULT_PER_PAGE);
+  const page = Number.isInteger(pageRaw) && pageRaw > 0 ? pageRaw : 1;
 
   const perPage = PER_PAGE_OPTIONS.includes(
     perPageRaw as (typeof PER_PAGE_OPTIONS)[number],
@@ -27,40 +30,23 @@ export function Main() {
     ? perPageRaw
     : DEFAULT_PER_PAGE;
 
+  useEffect(() => {
+    const categoryParam = CATEGORIES.includes(category as Category)
+      ? (category as Category)
+      : undefined;
+
+    loadProducts({
+      search,
+      category: categoryParam,
+      page,
+      limit: perPage,
+      ...getSortParams(sort),
+    });
+  }, [category, loadProducts, page, perPage, search, sort]);
+
   const updateParam = (key: string, value: string) => {
     setSearchParams(buildNextParams(searchParams, key, value));
   };
-
-  // логика поиска
-  const bySearch = products.filter((p) =>
-    p.title.toLowerCase().includes(search.toLowerCase()),
-  );
-
-  // логика филтрации по категории
-  const byCategory = category
-    ? bySearch.filter((p) => p.category === category)
-    : bySearch;
-
-  const sorted = useMemo(() => {
-    const list = [...byCategory];
-
-    switch (sort) {
-      case 'price-asc':
-        return list.sort((a, b) => a.price - b.price);
-      case 'price-desc':
-        return list.sort((a, b) => b.price - a.price);
-      case 'name-asc':
-        return list.sort((a, b) => a.title.localeCompare(b.title));
-      case 'name-desc':
-        return list.sort((a, b) => b.title.localeCompare(a.title));
-      default:
-        return list;
-    }
-  }, [byCategory, sort]);
-
-  const totalPages = Math.ceil(sorted.length / perPage);
-
-  const paginated = sorted.slice((page - 1) * perPage, page * perPage);
 
   return (
     <div className={styles.mainPage}>
@@ -75,7 +61,6 @@ export function Main() {
           onChange={(e) => updateParam('search', e.target.value)}
         />
 
-        {/* ФИЛЬТР ПО КАТЕГОРИИ */}
         <select
           className={styles.mainPage_select}
           value={category}
@@ -89,7 +74,6 @@ export function Main() {
           ))}
         </select>
 
-        {/* СОРТИРОВКИ */}
         <select
           className={styles.mainPage_select}
           value={sort}
@@ -102,7 +86,6 @@ export function Main() {
           <option value='name-desc'>Название Я-А</option>
         </select>
 
-        {/* ЛИМИТ ТОВАРОВ НА СТРАНИЦЕ */}
         <select
           className={styles.mainPage_select}
           value={perPage}
@@ -114,20 +97,23 @@ export function Main() {
         </select>
       </div>
 
-      {!paginated.length ? (
+      {error ? (
+        <EmptyState title='Не удалось загрузить каталог' text={error} />
+      ) : isLoading ? (
+        <EmptyState title='Загружаем каталог...' />
+      ) : !products.length ? (
         <EmptyState
-          title={!products.length ? 'Каталог пока пуст' : 'Ничего не найдено'}
+          title={!search && !category ? 'Каталог пока пуст' : 'Ничего не найдено'}
           text={
-            !products.length
+            !search && !category
               ? 'Скоро здесь появятся товары. Загляните позже.'
               : 'Попробуйте изменить параметры поиска или фильтра'
           }
-          icon='🛒'
         />
       ) : (
         <div className={styles.productsList}>
-          {paginated.map((product, index) => (
-            <ProductCard {...product} key={index} />
+          {products.map((product) => (
+            <ProductCard {...product} key={product.id} />
           ))}
         </div>
       )}
@@ -139,4 +125,19 @@ export function Main() {
       />
     </div>
   );
+}
+
+function getSortParams(sort: string) {
+  switch (sort) {
+    case 'price-asc':
+      return { sortPrice: 'asc' as const };
+    case 'price-desc':
+      return { sortPrice: 'desc' as const };
+    case 'name-asc':
+      return { sortTitle: 'asc' as const };
+    case 'name-desc':
+      return { sortTitle: 'desc' as const };
+    default:
+      return {};
+  }
 }

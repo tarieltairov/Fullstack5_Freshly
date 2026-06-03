@@ -28,12 +28,12 @@ export function Cart() {
     );
   }
 
-  const handleProductClick = (productId: number) => {
+  const handleProductClick = (productId: string) => {
     navigate(`/product/${productId}`);
   };
 
   const onRemoveItemClick = (
-    productId: number,
+    productId: string,
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     e.stopPropagation();
@@ -56,6 +56,9 @@ export function Cart() {
                 src={item.imageUrl}
                 alt={item.title}
                 className={styles.cart__item_img}
+                onError={(event) => {
+                  event.currentTarget.src = `https://placehold.co/400x400/16a34a/ffffff?text=${item.title}`;
+                }}
               />
               <div className={styles.cart__item_right}>
                 <h2 className={styles.cart__item_title}>{item.title}</h2>

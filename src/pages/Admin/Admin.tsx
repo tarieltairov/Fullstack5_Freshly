@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { useProducts } from '../../context/ProductsContext';
-import { CATEGORIES } from '../../mock/products';
-import styles from './Admin.module.scss';
-import type { Category, Product } from '../../types/product';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ConfirmModal } from '../../components/ConfirmModal';
 import { EmptyState } from '../../components/EmptyState';
+import { CATEGORIES } from '../../constants/categories';
+import { useProducts } from '../../context/ProductsContext';
+import type { Category, Product, ProductPayload } from '../../types/product';
+import styles from './Admin.module.scss';
 
 interface FormState {
   title: string;
@@ -24,13 +24,26 @@ const EMPTY_FORM: FormState = {
 };
 
 export function Admin() {
-  const { products, addProduct, deleteProduct, updateProduct } = useProducts();
+  const {
+    addProduct,
+    deleteProduct,
+    error,
+    isLoading,
+    loadProducts,
+    products,
+    total,
+    updateProduct,
+  } = useProducts();
 
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
-
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [openDelete, setOpenDelete] = useState(false);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    loadProducts({ page: 1, limit: 100 });
+  }, [loadProducts]);
 
   const resetForm = () => {
     setForm(EMPTY_FORM);
@@ -45,10 +58,11 @@ export function Admin() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
-    const data: Omit<Product, 'id'> = {
+    const data: ProductPayload = {
       title: form.title.trim(),
       price: Number(form.price),
       imageUrl: form.imageUrl.trim(),
@@ -56,32 +70,36 @@ export function Admin() {
       category: form.category,
     };
 
-    if (editingId !== null) {
-      updateProduct(editingId, data);
-    } else {
-      addProduct(data);
-    }
+    const result =
+      editingId !== null
+        ? await updateProduct(editingId, data)
+        : await addProduct(data);
 
-    resetForm();
+    setIsSubmitting(false);
+
+    if (result) {
+      resetForm();
+    }
   };
 
-  const openDeleteModal = (id: number) => {
+  const openDeleteModal = (id: string) => {
     setOpenDelete(true);
     setDeletingId(id);
   };
 
   const closeDeleteModal = () => {
     setOpenDelete(false);
+    setDeletingId(null);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deletingId) return;
 
-    deleteProduct(deletingId);
+    const deleted = await deleteProduct(deletingId);
 
     closeDeleteModal();
 
-    if (editingId === deletingId) resetForm();
+    if (deleted && editingId === deletingId) resetForm();
   };
 
   const handleEdit = (product: Product) => {
@@ -124,6 +142,7 @@ export function Admin() {
               type='number'
               id='price'
               name='price'
+              min='0'
               required
               value={form.price}
               onChange={handleChange}
@@ -170,9 +189,19 @@ export function Admin() {
             />
           </div>
 
+          {error && <p className={styles.itemMeta}>{error}</p>}
+
           <div className={styles.actions}>
-            <button type='submit' className={styles.submit}>
-              {editingId ? 'Сохранить' : 'Создать'}
+            <button
+              type='submit'
+              className={styles.submit}
+              disabled={isSubmitting}
+            >
+              {isSubmitting
+                ? 'Сохраняем...'
+                : editingId !== null
+                  ? 'Сохранить'
+                  : 'Создать'}
             </button>
 
             {editingId !== null && (
@@ -188,11 +217,12 @@ export function Admin() {
         </form>
 
         <div className={styles.list}>
-          <h2>Товары ({products.length})</h2>
+          <h2>Товары ({total})</h2>
 
-          {!products.length ? (
+          {isLoading ? (
+            <EmptyState title='Загружаем товары...' />
+          ) : !products.length ? (
             <EmptyState
-              icon='📦'
               title='Товаров пока нет'
               text='Создайте первый товар через форму слева'
             />
@@ -240,7 +270,7 @@ export function Admin() {
         onCancel={closeDeleteModal}
         onConfirm={handleDelete}
         title='Удалить товар?'
-        message='Вы уверены что хотите удалить данный товар. Удаление будет безвозвратным.'
+        message='Вы уверены, что хотите удалить данный товар. Удаление будет безвозвратным.'
         confirmText='Удалить'
         variant='danger'
       />

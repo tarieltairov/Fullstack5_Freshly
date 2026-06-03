@@ -36,8 +36,6 @@ export function Login() {
     setIsLoading(false);
   };
 
-  console.log(isLoading);
-
   return (
     <div className={styles.wrapper}>
       <form className={styles.form} action='' onSubmit={handleSubmit}>
