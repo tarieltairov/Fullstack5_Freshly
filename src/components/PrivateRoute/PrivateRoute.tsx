@@ -7,8 +7,12 @@ interface PrivateRouteProps {
 }
 
 export function PrivateRoute({ role }: PrivateRouteProps) {
-  const { isAuth, user } = useAuth();
+  const { isAuth, isLoading, user } = useAuth();
   const location = useLocation();
+
+  if (isLoading) {
+    return null;
+  }
 
   if (!isAuth) {
     return (
